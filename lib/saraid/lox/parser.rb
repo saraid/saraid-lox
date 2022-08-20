@@ -11,7 +11,25 @@ module Saraid
       attr_reader :current
 
       private def expression
-        equality
+        assignment
+      end
+
+      private def assignment
+        expr = equality
+
+        if match(:equal)
+          equals = previous
+          value = assignment
+
+          if Expr::Variable === expr
+            name = expr.name
+            return Expr::Assign.new(name, value)
+          end
+
+          error(equals, "Invalid assignment target.")
+        end
+
+        expr
       end
 
       private def equality
@@ -148,7 +166,15 @@ module Saraid
 
       private def statement
         return printStatement if match(:print)
+        return Stmt::Block.new(block) if match(:left_brace)
         expressionStatement
+      end
+
+      private def block
+        statements = []
+        statements << declaration while !check(:right_brace) && !is_at_end?
+        consume(:right_brace, "Expect '}' after block.");
+        statements
       end
 
       private def printStatement

@@ -17,6 +17,8 @@ module Saraid
         exit 64
       elsif args.size == 1
         run_file args.first
+      elsif $stdin.stat.pipe?
+        run $stdin.read
       else
         run_prompt
       end

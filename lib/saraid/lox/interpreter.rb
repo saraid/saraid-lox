@@ -126,7 +126,6 @@ module Saraid
       end
 
       private def visitVarStmt(stmt)
-        puts stmt.inspect
         value = stmt.initializer&.then { evaluate _1 }
 
         @environment.define(stmt.name.lexeme, value)
@@ -135,6 +134,28 @@ module Saraid
 
       private def visitVariableExpr(expr)
         @environment.get(expr.name)
+      end
+
+      private def visitAssignExpr(expr)
+        value = evaluate expr.value
+        @environment.assign(expr.name, value)
+        value
+      end
+
+      private def visitBlockStmt(stmt)
+        executeBlock(stmt.statements, Environment.new(@environment))
+        nil
+      end
+
+      def executeBlock(statements, environment)
+        previous = @environment
+        
+        begin
+          @environment = environment
+          statements.each { execute _1 }
+        ensure
+          @environment = previous
+        end
       end
     end
   end

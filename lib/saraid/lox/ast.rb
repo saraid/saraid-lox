@@ -6,12 +6,14 @@ module Saraid
       Literal: %i( value ),
       Unary: %i( operator right ),
       Variable: %i( name ),
+      Assign: %i( name value ),
     }
 
     generate_ast :Stmt, {
       Expression: %i( expression ),
       Print: %i( expression ),
       Var: %i( name initializer ),
+      Block: %i( statements ),
     }
   end
 end
