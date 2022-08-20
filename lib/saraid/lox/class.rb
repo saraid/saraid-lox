@@ -1,13 +1,13 @@
 module Saraid
   module Lox
-    class LoxClass
-      def initialize(name)
-        @name = name
+    class LoxInstance
+      def initialize(klass)
+        @klass = klass
       end
-      attr_reader :name
+      attr_reader :klass
 
       def to_s
-        name
+        "#{klass.name} instance"
       end
     end
   end

@@ -132,7 +132,7 @@ module Saraid
       end
 
       def visitCallExpr(expr)
-        resolve(expr.calee)
+        resolve(expr.callee)
         expr.arguments.each { resolve _1 }
         nil
       end

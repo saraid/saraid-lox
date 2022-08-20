@@ -1,9 +1,9 @@
 module Saraid
   module Lox
-    class Callable
+    class LoxCallable
     end
 
-    class LoxFunction < Callable
+    class LoxFunction < LoxCallable
       def initialize(declaration, closure)
         @declaration = declaration
         @closure = closure
@@ -29,6 +29,25 @@ module Saraid
 
       def to_s
         "<fn #{declaration.name.lexeme}>"
+      end
+    end
+
+    class LoxClass < LoxCallable
+      def initialize(name)
+        @name = name
+      end
+      attr_reader :name
+
+      def arity
+        0
+      end
+
+      def call(interpreter, arguments)
+        LoxInstance.new(self)
+      end
+
+      def to_s
+        name
       end
     end
   end
