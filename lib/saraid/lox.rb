@@ -32,7 +32,7 @@ module Saraid
     def self.run_prompt
       loop do
         line = $stdin.gets
-        break if line.nil?
+        break if line == "\n"
 
         run line
         @had_error = false

@@ -7,6 +7,10 @@ module Saraid
         token_types.each { @registry << _1 }
       end
 
+      def self.registered?(type)
+        @registry.include? type
+      end
+
       register(
         # Single-character tokens.
         :left_paren, :right_paren, :left_brace, :right_brace,

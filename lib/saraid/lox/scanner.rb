@@ -14,18 +14,18 @@ module Saraid
       def scan_tokens
         until is_at_end? do
           # We are at the beginning of the next lexeme.
-          start = current
+          @start = current
           scan_token
         end
 
         tokens << Token.new(:eof, '', nil, line)
       end
 
-      def is_at_end?
-        current >= source.size
+      private def is_at_end?
+        current >= source.size - 1
       end
 
-      def scan_token
+      private def scan_token
         c = advance
         case c
         when '(' then add_token :left_paren
@@ -38,16 +38,42 @@ module Saraid
         when '+' then add_token :plus
         when ';' then add_token :semicolon
         when '*' then add_token :star
+        when '!' then add_token(match('=') ? BANG_EQUAL : BANG)
+        when '=' then add_token(match('=') ? EQUAL_EQUAL : EQUAL)
+        when '<' then add_token(match('=') ? LESS_EQUAL : LESS)
+        when '>' then add_token(match('=') ? GREATER_EQUAL : GREATER)
+        when '/'
+          if match('/') then advance while peek != "\n" && !is_at_end?
+          else add_token :slash
+          end
+        when ' ' then :ignore
+        when "\r" then :ignore
+        when "\t" then :ignore
+        when "\n" then @line += 1
+        else Lox.error line, 'Unexpected character'
         end
       end
 
-      def advance
-        source[current+=1]
+      private def advance
+        source[@current += 1]
       end
 
-      def add_token(type, literal = nil)
+      private def add_token(type, literal = nil)
         text = source[start, current]
         tokens << Token.new(type, text, literal, line)
+      end
+
+      private def match(expected)
+        return false if is_at_end?
+        return false if source[current] != expected
+
+        @current += 1
+        true
+      end
+
+      private def peek
+        return "\0" if is_at_end?
+        source[current]
       end
     end
   end

@@ -3,6 +3,7 @@ module Saraid
     class Token
       def initialize(type, lexeme, literal, line)
         @type, @lexeme, @literal, @line = type, lexeme, literal, line
+        raise TypeError unless TokenType.registered?(@type)
       end
       attr_reader :type, :lexeme, :literal, :line
 
