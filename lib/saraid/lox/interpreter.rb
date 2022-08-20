@@ -177,6 +177,11 @@ module Saraid
 
         evaluate expr.right
       end
+
+      def visitWhileStmt(stmt)
+        execute(stmt.body) while is_truthy?(evaluate stmt.condition)
+        nil
+      end
     end
   end
 end

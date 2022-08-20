@@ -16,6 +16,7 @@ module Saraid
       Var: %i( name initializer ),
       Block: %i( statements ),
       If: %i( condition thenBranch elseBranch ),
+      While: %i( condition body ),
     }
   end
 end

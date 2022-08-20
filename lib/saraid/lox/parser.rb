@@ -177,10 +177,47 @@ module Saraid
       end
 
       private def statement
+        return forStatement if match(:for)
         return ifStatement if match(:if)
         return printStatement if match(:print)
+        return whileStatement if match(:while)
         return Stmt::Block.new(block) if match(:left_brace)
         expressionStatement
+      end
+
+      private def forStatement
+        consume(:left_paren, "Expect '(' after 'for'.");
+
+        initializer =
+          case
+          when match(:semicolon) then nil
+          when match(:var) then varDeclaration
+          else expressionStatement
+          end
+
+        condition = expression unless check(:semicolon)
+        consume(:semicolon, "Expect ';' after loop condition.");
+
+        increment = expression unless check(:right_paren)
+        consume(:right_paren, "Expect ')' after for clauses.");
+        body = statement
+
+        body = Stmt::Block.new([body, Stmt::Expression.new(increment)]) if increment
+
+        condition ||= Expr::Literal.new(true)
+        body = Stmt::While.new(condition, body)
+        body = Stmt::Block.new([initializer, body]) if initializer
+
+        body
+      end
+
+      private def whileStatement
+        consume(:left_paren, "Expect '(' after 'while'.");
+        condition = expression
+        consume(:right_paren, "Expect ')' after condition.");
+        body = statement
+
+        Stmt::While.new(condition, body)
       end
 
       private def ifStatement
