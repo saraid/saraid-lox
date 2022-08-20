@@ -51,7 +51,10 @@ module Saraid
         when "\t" then :ignore
         when "\n" then @line += 1
         when '"' then string
-        else Lox.error line, "Unexpected character `#{c}`"
+        else
+          if is_digit?(c) then number
+          else Lox.error line, "Unexpected character `#{c}`"
+          end
         end
       end
 
@@ -94,6 +97,29 @@ module Saraid
         # Trim the surrounding quotes.
         value = source[(start + 1)..(current - 1)]
         add_token(:string, value);
+      end
+
+      private def is_digit?(c)
+        c.match?(/\d/)
+      end
+
+      private def number
+        advance while is_digit?(peek)
+
+        # Look for a fractional part.
+        if peek == '.' && is_digit?(peek_next)
+          # Consume the "."
+          advance
+
+          advance while is_digit?(peek)
+        end
+
+        add_token(:number, source[start..current].to_f)
+      end
+
+      private def peek_next
+        return "\0" if current + 1 >= source.size
+        source[current + 1]
       end
     end
   end
