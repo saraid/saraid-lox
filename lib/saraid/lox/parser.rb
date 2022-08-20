@@ -15,7 +15,7 @@ module Saraid
       end
 
       private def assignment
-        expr = equality
+        expr = or_expr
 
         if match(:equal)
           equals = previous
@@ -29,6 +29,18 @@ module Saraid
           error(equals, "Invalid assignment target.")
         end
 
+        expr
+      end
+
+      private def or_expr
+        expr = and_expr
+        expr = Expr::Logical.new(expr, previous, and_expr) while match(:or)
+        expr
+      end
+
+      private def and_expr
+        expr = equality
+        expr = Expr::Logical.new(expr, previous, equality) while match(:and)
         expr
       end
 

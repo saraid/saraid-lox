@@ -166,6 +166,17 @@ module Saraid
         end
         nil
       end
+
+      def visitLogicalExpr(expr)
+        left = evaluate expr.left
+
+        case expr.operator.type
+        when :or then return left if is_truthy?(left)
+        when :and then return left unless is_truthy?(left)
+        end
+
+        evaluate expr.right
+      end
     end
   end
 end

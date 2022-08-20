@@ -7,6 +7,7 @@ module Saraid
       Unary: %i( operator right ),
       Variable: %i( name ),
       Assign: %i( name value ),
+      Logical: %i( left operator right ),
     }
 
     generate_ast :Stmt, {
