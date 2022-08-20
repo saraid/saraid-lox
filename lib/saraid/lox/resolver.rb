@@ -175,6 +175,13 @@ module Saraid
         declare(stmt.name)
         define(stmt.name)
 
+        if stmt.superclass
+          if stmt.name.lexeme == stmt.superclass.name.lexeme
+            Lox.error(stmt.superclass.name, "A class can't inherit from itself.");
+          end
+          resolve(stmt.superclass) 
+        end
+
         beginScope
         @scopes.last['this'] = true
         stmt.methods.each do 

@@ -25,7 +25,7 @@ module Saraid
       While: %i( condition body ),
       Function: %i( name params body ),
       Return: %i( keyword value ),
-      Class: %i( name methods ),
+      Class: %i( name superclass methods ),
     }
   end
 end

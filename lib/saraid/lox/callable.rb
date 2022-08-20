@@ -49,11 +49,12 @@ module Saraid
     end
 
     class LoxClass < LoxCallable
-      def initialize(name, methods)
+      def initialize(name, superclass, methods)
         @name = name
+        @superclass = superclass
         @methods = methods
       end
-      attr_reader :name, :methods
+      attr_reader :name, :superclass, :methods
 
       def arity
         findMethod('init')&.arity || 0

@@ -251,11 +251,20 @@ module Saraid
       end
 
       def visitClassStmt(stmt)
+        superclass =
+          stmt.superclass
+            &.then { evaluate _1 }
+            .tap do
+              unless LoxClass === superclass 
+                raise RuntimeError.new(stmt.superclass.name, "Superclass must be a class.");
+              end
+            end
+
         @environment.define(stmt.name.lexeme, nil)
         methods = stmt.methods.each.with_object({}) do |meth, collection|
           collection[meth.name.lexeme] = LoxFunction.new(meth, @environment, meth.name.lexeme == 'init')
         end
-        @environment.assign(stmt.name, LoxClass.new(stmt.name.lexeme, methods))
+        @environment.assign(stmt.name, LoxClass.new(stmt.name.lexeme, superclass, methods))
         nil
       end
 

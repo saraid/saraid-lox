@@ -201,13 +201,20 @@ module Saraid
 
       private def classDeclaration
         name = consume(:identifier, "Expect class name.")
+
+        superclass =
+          if match(:less)
+            consume(:identifier, "Expect superclass name.");
+            Expr::Variable.new(previous());
+          end
+
         consume(:left_brace, "Expect '{' before class body.")
         methods = []
         methods << function("method") while !check(:right_brace) && !is_at_end?
 
         consume(:right_brace, "Expect '}' after class body.");
 
-        Stmt::Class.new(name, methods)
+        Stmt::Class.new(name, superclass, methods)
       end
 
       private def function(kind)
