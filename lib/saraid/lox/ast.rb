@@ -8,6 +8,7 @@ module Saraid
       Variable: %i( name ),
       Assign: %i( name value ),
       Logical: %i( left operator right ),
+      Call: %i( callee paren arguments ),
     }
 
     generate_ast :Stmt, {
@@ -17,6 +18,7 @@ module Saraid
       Block: %i( statements ),
       If: %i( condition thenBranch elseBranch ),
       While: %i( condition body ),
+      Function: %i( name params body ),
     }
   end
 end

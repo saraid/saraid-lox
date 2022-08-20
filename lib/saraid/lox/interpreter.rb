@@ -2,8 +2,24 @@ module Saraid
   module Lox
     class Interpreter
       def initialize
-        @environment = Environment.new
+        @globals = Environment.new
+        @environment = @globals
+
+        @globals.define('clock', Class.new do
+          def arity
+            0
+          end
+
+          def call(interpreter, arguments)
+            Time.now
+          end
+
+          def to_s
+            '<native fn>'
+          end
+        end)
       end
+      attr_reader :globals
 
       def visitLiteralExpr(expr)
         expr.value
@@ -180,6 +196,26 @@ module Saraid
 
       def visitWhileStmt(stmt)
         execute(stmt.body) while is_truthy?(evaluate stmt.condition)
+        nil
+      end
+
+      def visitCallExpr(expr)
+        callee = evaluate expr.callee
+        arguments = expr.arguments.map { evaluate _1 }
+
+        unless callee.respond_to?(:call)
+          raise RuntimeError.new(expr.paren, "Can only call functions and classes.")
+        end
+
+        if arguments.size != callee.arity
+          raise RuntimeError.new(expr.paren,
+                                 "Expected #{callee.arity} arguments but got #{arguments.size}")
+        end
+        callee.call(self, arguments)
+      end
+
+      def visitFunctionStmt(stmt)
+        @environment.define(stmt.name.lexeme, Function.new(stmt))
         nil
       end
     end

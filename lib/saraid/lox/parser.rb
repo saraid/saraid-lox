@@ -108,7 +108,26 @@ module Saraid
 
       private def unary
         return Expr::Unary.new(previous, unary) if match(:bang, :minus)
-        primary
+        call
+      end
+
+      private def call
+        expr = primary
+        expr = finishCall(expr) while match(:left_paren)
+        expr
+      end
+
+      private def finishCall(callee)
+        arguments = []
+        loop do
+          break if match(:right_paren)
+          arguments << expression
+          error(peek, "Can't have more than 255 arguments.") if arguments.size >= 255
+          break unless match(:comma)
+        end
+
+        paren = consume(:right_paren, "Expect ')' after arguments.")
+        Expr::Call.new(callee, paren, arguments)
       end
 
       private def primary
@@ -159,12 +178,31 @@ module Saraid
 
       private def declaration
         begin
+          return function('function') if match(:fun)
           return varDeclaration if match(:var)
           statement
         rescue Error
           synchronize
           nil
         end
+      end
+
+      private def function(kind)
+        name = consume(:identifier, "Expect #{kind} name.")
+        consume(:left_paren, "Expect '(' after #{kind} name.")
+        parameters = []
+        unless check(:right_paren)
+          loop do
+            error(peek, "Can't have more than 255 parameters.") if parameters.size >= 255
+            parameters << consume(:identifier, "Expect parameter name.")
+            break unless match(:comma)
+          end
+        end
+        consume(:right_paren, "Expect ')' after parameters.")
+
+        consume(:left_brace, "Expect '{' before #{kind} body.");
+        body = block
+        Stmt::Function.new(name, parameters, body)
       end
 
       private def varDeclaration
