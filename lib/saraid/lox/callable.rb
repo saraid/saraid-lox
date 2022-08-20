@@ -3,7 +3,7 @@ module Saraid
     class Callable
     end
 
-    class Function < Callable
+    class LoxFunction < Callable
       def initialize(declaration, closure)
         @declaration = declaration
         @closure = closure

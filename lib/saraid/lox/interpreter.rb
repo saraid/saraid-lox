@@ -237,7 +237,7 @@ module Saraid
       end
 
       def visitFunctionStmt(stmt)
-        @environment.define(stmt.name.lexeme, Function.new(stmt, @environment))
+        @environment.define(stmt.name.lexeme, LoxFunction.new(stmt, @environment))
         nil
       end
 
@@ -248,6 +248,12 @@ module Saraid
 
       def resolve(expr, depth)
         @locals[expr] = depth
+      end
+
+      def visitClassStmt(stmt)
+        @environment.define(stmt.name.lexeme, nil)
+        @environment.assign(stmt.name, LoxClass.new(stmt.name.lexeme))
+        nil
       end
     end
   end

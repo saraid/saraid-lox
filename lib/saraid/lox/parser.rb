@@ -179,6 +179,7 @@ module Saraid
 
       private def declaration
         begin
+          return classDeclaration if match(:class)
           return function('function') if match(:fun)
           return varDeclaration if match(:var)
           statement
@@ -186,6 +187,17 @@ module Saraid
           synchronize
           nil
         end
+      end
+
+      private def classDeclaration
+        name = consume(:identifier, "Expect class name.")
+        consume(:left_brace, "Expect '{' before class body.")
+        methods = []
+        methods << function("method") while !check(:right_brace) && !is_at_end?
+
+        consume(:right_brace, "Expect '}' after class body.");
+
+        Stmt::Class.new(name, methods)
       end
 
       private def function(kind)

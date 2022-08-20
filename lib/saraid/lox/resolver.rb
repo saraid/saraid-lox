@@ -152,6 +152,12 @@ module Saraid
         resolve(expr.right)
         nil
       end
+
+      def visitClassStmt(stmt)
+        declare(stmt.name)
+        define(stmt.name)
+        nil
+      end
     end
   end
 end
