@@ -258,9 +258,17 @@ module Saraid
 
       def visitGetExpr(expr)
         object = evaluate(expr.object)
-        object.get(expr.name) if LoxInstance === object
+        return object.get(expr.name) if LoxInstance === object
 
         raise RuntimeError.new(expr.name, "Only instances have properties.")
+      end
+
+      def visitSetExpr(expr)
+        object = evaluate(expr.object)
+        raise RuntimeError.new(expr.name, "Only instances have properties.") unless LoxInstance === object
+        value = evaluate(expr.value)
+        object.set(expr.name, value)
+        value
       end
     end
   end

@@ -163,6 +163,12 @@ module Saraid
         resolve(expr.object)
         nil
       end
+
+      def visitSetExpr(expr)
+        resolve(expr.value)
+        resolve(expr.object)
+        nil
+      end
     end
   end
 end

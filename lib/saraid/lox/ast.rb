@@ -12,6 +12,7 @@ module Saraid
       Logical: %i( left operator right ),
       Call: %i( callee paren arguments ),
       Get: %i( object name ),
+      Set: %i( object name value ),
     }
 
     generate_ast :Stmt, {

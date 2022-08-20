@@ -24,6 +24,8 @@ module Saraid
           if Expr::Variable === expr
             name = expr.name
             return Expr::Assign.new(name, value)
+          elsif Expr::Get === expr
+            return Expr::Set.new(expr.object, expr.name, value)
           end
 
           error(equals, "Invalid assignment target.")
