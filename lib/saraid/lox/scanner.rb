@@ -3,6 +3,11 @@ require_relative './token'
 module Saraid
   module Lox
     class Scanner
+      KEYWORDS = [
+        :and, :class, :else, :false, :fun, :for, :if, :nil, :or,
+        :print, :return, :super, :this, :true, :var, :while,
+      ].map(&:to_s)
+
       def initialize(source)
         @source = source
         @tokens = []
@@ -53,6 +58,7 @@ module Saraid
         when '"' then string
         else
           if is_digit?(c) then number
+          elsif is_alpha?(c) then identifier
           else Lox.error line, "Unexpected character `#{c}`"
           end
         end
@@ -120,6 +126,23 @@ module Saraid
       private def peek_next
         return "\0" if current + 1 >= source.size
         source[current + 1]
+      end
+
+      private def identifier
+        advance while is_alphanumeric?(peek)
+
+        text = source[start..current]
+        type = KEYWORDS.find { text == _1 } || :identifier
+
+        add_token type
+      end
+
+      private def is_alpha?(c)
+        c.match?(/[A-Za-z_]/)
+      end
+
+      private def is_alphanumeric?(c)
+        is_alpha?(c) || is_digit?(c)
       end
     end
   end
