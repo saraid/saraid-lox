@@ -32,6 +32,7 @@ module Saraid
     def self.run_prompt
       loop do
         line = $stdin.gets
+        puts line.inspect
         break if line == "\n"
 
         run line

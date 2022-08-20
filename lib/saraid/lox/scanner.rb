@@ -22,7 +22,7 @@ module Saraid
       end
 
       private def is_at_end?
-        current >= source.size - 1 # TODO: Why did I have to subtract 1?
+        current >= source.size
       end
 
       private def scan_token
@@ -38,10 +38,10 @@ module Saraid
         when '+' then add_token :plus
         when ';' then add_token :semicolon
         when '*' then add_token :star
-        when '!' then add_token(match('=') ? BANG_EQUAL : BANG)
-        when '=' then add_token(match('=') ? EQUAL_EQUAL : EQUAL)
-        when '<' then add_token(match('=') ? LESS_EQUAL : LESS)
-        when '>' then add_token(match('=') ? GREATER_EQUAL : GREATER)
+        when '!' then add_token(match('=') ? :bang_equal : :bang)
+        when '=' then add_token(match('=') ? :equal_equal : :equal)
+        when '<' then add_token(match('=') ? :less_equal : :less)
+        when '>' then add_token(match('=') ? :greater_equal : :greater)
         when '/'
           if match('/') then advance while peek != "\n" && !is_at_end?
           else add_token :slash
@@ -50,16 +50,17 @@ module Saraid
         when "\r" then :ignore
         when "\t" then :ignore
         when "\n" then @line += 1
-        else Lox.error line, 'Unexpected character'
+        when '"' then string
+        else Lox.error line, "Unexpected character `#{c}`"
         end
       end
 
       private def advance
-        source[@current += 1]
+        source[current].tap { @current += 1 }
       end
 
       private def add_token(type, literal = nil)
-        text = source[start, current]
+        text = source[start..current]
         tokens << Token.new(type, text, literal, line)
       end
 
@@ -74,6 +75,25 @@ module Saraid
       private def peek
         return "\0" if is_at_end?
         source[current]
+      end
+
+      private def string
+        while peek != '"' && !is_at_end?
+          @line += 1 if peek == "\n"
+          advance
+        end
+
+        if is_at_end?
+          Lox.error(line, "Unterminated string.")
+          return
+        end
+
+        # The closing ".
+        advance
+
+        # Trim the surrounding quotes.
+        value = source[(start + 1)..(current - 1)]
+        add_token(:string, value);
       end
     end
   end
