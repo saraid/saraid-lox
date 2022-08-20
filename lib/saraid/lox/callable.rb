@@ -62,12 +62,13 @@ module Saraid
 
       def call(interpreter, arguments)
         instance = LoxInstance.new(self)
-        findMethod('init')&.bind(instance).call(interpreter, arguments)
+        findMethod('init')&.bind(instance)&.call(interpreter, arguments)
         instance
       end
 
       def findMethod(name)
         return @methods[name] if @methods.key?(name)
+        return superclass.findMethod(name) if superclass
         nil
       end
 
