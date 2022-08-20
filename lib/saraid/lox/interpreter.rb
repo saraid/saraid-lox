@@ -255,6 +255,13 @@ module Saraid
         @environment.assign(stmt.name, LoxClass.new(stmt.name.lexeme))
         nil
       end
+
+      def visitGetExpr(expr)
+        object = evaluate(expr.object)
+        object.get(expr.name) if LoxInstance === object
+
+        raise RuntimeError.new(expr.name, "Only instances have properties.")
+      end
     end
   end
 end

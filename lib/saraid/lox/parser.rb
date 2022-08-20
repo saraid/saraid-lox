@@ -113,7 +113,13 @@ module Saraid
 
       private def call
         expr = primary
-        expr = finishCall(expr) while match(:left_paren)
+        loop do
+          if match(:left_paren) then expr = finishCall(expr)
+          elsif match(:dot)
+            name = consume(:identifier, "Expect property name after '.'.")
+            expr = Expr::Get.new(expr, name)
+          end
+        end
         expr
       end
 

@@ -158,6 +158,11 @@ module Saraid
         define(stmt.name)
         nil
       end
+
+      def visitGetExpr(expr)
+        resolve(expr.object)
+        nil
+      end
     end
   end
 end
