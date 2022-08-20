@@ -4,11 +4,16 @@ module Saraid
     end
 
     class LoxFunction < LoxCallable
-      def initialize(declaration, closure)
+      def initialize(declaration, closure, is_initializer)
         @declaration = declaration
         @closure = closure
+        @is_initializer = is_initializer
       end
       attr_reader :declaration, :closure
+
+      def is_initializer?
+        @is_initializer
+      end
 
       def arity
         declaration.params.size
@@ -17,7 +22,7 @@ module Saraid
       def bind(instance)
         environment = Environment.new(closure)
         environment.define('this', instance)
-        LoxFunction.new(declaration, environment)
+        LoxFunction.new(declaration, environment, @is_initializer)
       end
 
       def call(interpreter, arguments)
@@ -29,8 +34,13 @@ module Saraid
         begin
           interpreter.executeBlock(declaration.body, environment)
         rescue Interpreter::Return => returnStmt
-          returnStmt.value
+          return closure.get(0, 'this') if is_initializer?
+          return returnStmt.value
         end
+
+        return closure.get(0, 'this') if is_initializer?
+
+        nil
       end
 
       def to_s
@@ -46,11 +56,13 @@ module Saraid
       attr_reader :name, :methods
 
       def arity
-        0
+        findMethod('init')&.arity || 0
       end
 
       def call(interpreter, arguments)
-        LoxInstance.new(self)
+        instance = LoxInstance.new(self)
+        findMethod('init')&.bind(instance).call(interpreter, arguments)
+        instance
       end
 
       def findMethod(name)

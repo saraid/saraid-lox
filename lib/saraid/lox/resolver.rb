@@ -127,7 +127,10 @@ module Saraid
 
       def visitReturnStmt(stmt)
         Lox.error(stmt.keyword, "Can't return from top-level code.") if @current_function.nil?
-        resolve(stmt.value) if stmt.value
+        if stmt.value
+          Lox.error(stmt.keyword, "Can't return a value from an initializer.") if @current_function == :initializer
+          resolve(stmt.value) 
+        end
         nil
       end
 
@@ -174,7 +177,10 @@ module Saraid
 
         beginScope
         @scopes.last['this'] = true
-        stmt.methods.each { resolveFunction(_1, :method) }
+        stmt.methods.each do 
+          declaration = _1.name.lexeme == 'init' ? :initializer : :method
+          resolveFunction(_1, declaration)
+        end
         endScope
 
         @current_class = enclosing_class
