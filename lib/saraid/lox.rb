@@ -3,6 +3,7 @@ require "saraid/lox/version"
 require_relative 'lox/token_type'
 require_relative 'lox/token'
 require_relative 'lox/scanner'
+require_relative 'lox/ast_printer'
 
 module Saraid
   module Lox
@@ -56,17 +57,20 @@ module Saraid
       @had_error = true
     end
 
-    def self.generate_ast(superclass, definitions)
-      superclass = const_set(superclass, Class.new)
+    def self.generate_ast(superclass_name, definitions)
+      superclass = const_set(superclass_name, Class.new)
       definitions.each do |subclass, parameters|
-        const_set(subclass, Class.new(superclass) do
+        superclass.const_set(subclass, Class.new(superclass) do
           define_method(:initialize) do |*arguments|
             parameters.each.with_index do |param, i|
               instance_variable_set(:"@#{param}", arguments[i])
             end
           end
-
           attr_reader *parameters
+
+          define_method(:accept) do |visitor|
+            visitor.send(:"visit#{subclass}#{superclass_name}", self)
+          end
         end)
       end
     end
