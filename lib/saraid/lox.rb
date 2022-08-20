@@ -3,7 +3,13 @@ require "saraid/lox/version"
 module Saraid
   module Lox
     class Error < StandardError; end
-    # Your code goes here...
+    class RuntimeError < Lox::Error
+      def initialize(token, message)
+        super(message)
+        @token = token
+      end
+      attr_reader :token
+    end
 
     def self.main(args)
       if args.size > 1
@@ -95,7 +101,7 @@ module Saraid
     end
   end
 end
-require_relative 'lox/expr'
+require_relative 'lox/ast'
 
 require_relative 'lox/token_type'
 require_relative 'lox/token'
@@ -103,3 +109,4 @@ require_relative 'lox/scanner'
 require_relative 'lox/ast_printer'
 require_relative 'lox/parser'
 require_relative 'lox/interpreter'
+require_relative 'lox/environment'

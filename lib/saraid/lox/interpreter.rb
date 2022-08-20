@@ -1,12 +1,8 @@
 module Saraid
   module Lox
     class Interpreter
-      class RuntimeError < Lox::Error
-        def initialize(token, message)
-          super(message)
-          @token = token
-        end
-        attr_reader :token
+      def initialize
+        @environment = Environment.new
       end
 
       def visitLiteralExpr(expr)
@@ -127,6 +123,18 @@ module Saraid
 
       private def execute(stmt)
         stmt.accept(self)
+      end
+
+      private def visitVarStmt(stmt)
+        puts stmt.inspect
+        value = stmt.initializer&.then { evaluate _1 }
+
+        @environment.define(stmt.name.lexeme, value)
+        nil
+      end
+
+      private def visitVariableExpr(expr)
+        @environment.get(expr.name)
       end
     end
   end

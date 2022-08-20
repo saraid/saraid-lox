@@ -38,7 +38,7 @@ module Saraid
       end
 
       private def advance
-        return @current += 1 unless is_at_end?
+        @current += 1 unless is_at_end?
         previous
       end
 
@@ -88,6 +88,8 @@ module Saraid
 
         return Expr::Literal.new(previous.literal) if match(:number, :string)
 
+        return Expr::Variable.new(previous) if match(:identifier)
+
         if match(:left_paren)
           expr = expression
           consume :right_paren, "Expect ')' after expression."
@@ -121,8 +123,27 @@ module Saraid
 
       def parse
         statements = []
-        statements << statement until is_at_end?
+        statements << declaration until is_at_end?
         statements
+      end
+
+      private def declaration
+        begin
+          return varDeclaration if match(:var)
+          statement
+        rescue Error
+          synchronize
+          nil
+        end
+      end
+
+      private def varDeclaration
+        name = consume(:identifier, "Expect variable name.")
+
+        initializer = expression if match(:equal)
+
+        consume(:semicolon, "Expect ';' after variable declaration.");
+        Stmt::Var.new(name, initializer)
       end
 
       private def statement
