@@ -4,6 +4,7 @@ require_relative 'lox/token_type'
 require_relative 'lox/token'
 require_relative 'lox/scanner'
 require_relative 'lox/ast_printer'
+require_relative 'lox/parser'
 
 module Saraid
   module Lox
@@ -44,12 +45,25 @@ module Saraid
     def self.run(source)
       scanner = Scanner.new(source)
       tokens = scanner.scan_tokens
+      parser = Parser.new(tokens)
+      expression = parser.parse
 
-      puts tokens
+      return if had_error?
+
+      puts AstPrinter.new.print(expression)
     end
 
-    def self.error(line, message)
-      report line, '', message
+    def self.error(token_or_line, message)
+      case token_or_line
+      when Token
+        token = token_or_line
+        if token.type == :eof then report(token.line, ' at end', message)
+        else report(token.line, "at '#{token.lexeme}'", message)
+        end
+      else
+        line = token_or_line
+        report line, '', message
+      end
     end
 
     def self.report(line, where, message)
