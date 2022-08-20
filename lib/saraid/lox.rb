@@ -58,6 +58,10 @@ module Saraid
       return if had_error?
 
       @interpreter ||= Interpreter.new
+      resolver = Resolver.new(@interpreter)
+      resolver.resolve(stmts)
+      return if had_error?
+
       @interpreter.interpret(stmts)
     end
 
@@ -87,6 +91,7 @@ module Saraid
     def self.generate_ast(superclass_name, definitions)
       superclass = const_set(superclass_name, Class.new)
       definitions.each do |subclass, parameters|
+        visitorMethod = :"visit#{subclass}#{superclass_name}"
         superclass.const_set(subclass, Class.new(superclass) do
           define_method(:initialize) do |*arguments|
             parameters.each.with_index do |param, i|
@@ -96,9 +101,10 @@ module Saraid
           attr_reader *parameters
 
           define_method(:accept) do |visitor|
-            visitor.send(:"visit#{subclass}#{superclass_name}", self)
+            visitor.send(visitorMethod, self)
           end
         end)
+        Visitor.define_method(visitorMethod) { |*args| }
       end
     end
   end
@@ -113,3 +119,4 @@ require_relative 'lox/parser'
 require_relative 'lox/interpreter'
 require_relative 'lox/environment'
 require_relative 'lox/callable'
+require_relative 'lox/resolver'

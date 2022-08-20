@@ -10,6 +10,7 @@ module Saraid
 
       def initialize
         @globals = Environment.new
+        @locals = {}
         @environment = @globals
 
         @globals.define('clock', Class.new do
@@ -156,12 +157,25 @@ module Saraid
       end
 
       private def visitVariableExpr(expr)
-        @environment.get(expr.name)
+        lookUpVariable(expr.name, expr)
+      end
+
+      private def lookUpVariable(name, expr)
+        distance = @locals[expr]
+        if distance
+          @environment.getAt(distance, name.lexeme)
+        else
+          globals.get(name)
+        end
       end
 
       private def visitAssignExpr(expr)
         value = evaluate expr.value
-        @environment.assign(expr.name, value)
+
+        distance = @locals[expr]
+        if distance then @environment.assignAt(distance, expr.name, value)
+        else globals.assign(expr.name, value)
+        end
         value
       end
 
@@ -230,6 +244,10 @@ module Saraid
       def visitReturnStmt(stmt)
         value = evaluate(stmt.value) if stmt.value
         raise Return.new(value)
+      end
+
+      def resolve(expr, depth)
+        @locals[expr] = depth
       end
     end
   end

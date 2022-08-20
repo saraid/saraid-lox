@@ -1,5 +1,7 @@
 module Saraid
   module Lox
+    Visitor = Module.new
+
     generate_ast :Expr, {
       Binary: %i( left operator right ),
       Grouping: %i( expression ),
