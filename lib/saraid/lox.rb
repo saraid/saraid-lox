@@ -55,5 +55,21 @@ module Saraid
       $stderr.puts "[line #{line}] Error#{where}: #{message}"
       @had_error = true
     end
+
+    def self.generate_ast(superclass, definitions)
+      superclass = const_set(superclass, Class.new)
+      definitions.each do |subclass, parameters|
+        const_set(subclass, Class.new(superclass) do
+          define_method(:initialize) do |*arguments|
+            parameters.each.with_index do |param, i|
+              instance_variable_set(:"@#{param}", arguments[i])
+            end
+          end
+
+          attr_reader *parameters
+        end)
+      end
+    end
   end
 end
+require_relative 'lox/expr'
