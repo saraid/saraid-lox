@@ -7,6 +7,7 @@ module Saraid
         @interpreter = interpreter
         @scopes = []
         @current_function = nil
+        @current_class = nil
       end
       attr_reader :interpreter, :scopes
 
@@ -165,6 +166,9 @@ module Saraid
       end
 
       def visitClassStmt(stmt)
+        enclosing_class = @current_class
+        @current_class = :class
+
         declare(stmt.name)
         define(stmt.name)
 
@@ -172,6 +176,8 @@ module Saraid
         @scopes.last['this'] = true
         stmt.methods.each { resolveFunction(_1, :method) }
         endScope
+
+        @current_class = enclosing_class
         nil
       end
 
@@ -187,6 +193,10 @@ module Saraid
       end
 
       def visitThisExpr(expr)
+        if @current_class.nil?
+          Lox.error(expr.keyword, "Can't use 'this' outside of a class.")
+          return
+        end
         resolveLocal(expr, expr.keyword)
         nil
       end
