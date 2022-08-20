@@ -1,6 +1,13 @@
 module Saraid
   module Lox
     class Interpreter
+      class Return < StandardError
+        def initialize(value)
+          @value = value
+        end
+        attr_reader :value
+      end
+
       def initialize
         @globals = Environment.new
         @environment = @globals
@@ -63,7 +70,7 @@ module Saraid
           check_number_operands!(expr.operator, left, right)
           left * right
         when :plus
-          if (Float === left && Float === right)
+          if (Numeric === left && Numeric === right)
             check_number_operands!(expr.operator, left, right)
             left + right
           elsif (String === left && String === right)
@@ -96,11 +103,11 @@ module Saraid
       end
 
       private def check_number_operand!(operator, operand)
-        raise RuntimeError.new(operator, 'Operand must be a number.') unless Float === operand
+        raise RuntimeError.new(operator, 'Operand must be a number.') unless Numeric === operand
       end
 
       private def check_number_operands!(operator, left, right)
-        valid = [left, right].all? { Float === _1 }
+        valid = [left, right].all? { Numeric === _1 }
         raise RuntimeError.new(operator, 'Operands must be numbers.') unless valid
       end
 
@@ -122,7 +129,7 @@ module Saraid
       private def stringify(object)
         case object
         when NilClass then 'nil'
-        when Float then object.to_s.tap { _1.sub!(/\.0$/, '') }
+        when Numeric then object.to_s.tap { _1.sub!(/\.0$/, '') }
         else object.to_s
         end
       end
@@ -172,6 +179,7 @@ module Saraid
         ensure
           @environment = previous
         end
+        nil
       end
 
       def visitIfStmt(stmt)
@@ -217,6 +225,11 @@ module Saraid
       def visitFunctionStmt(stmt)
         @environment.define(stmt.name.lexeme, Function.new(stmt))
         nil
+      end
+
+      def visitReturnStmt(stmt)
+        value = evaluate(stmt.value) if stmt.value
+        raise Return.new(value)
       end
     end
   end

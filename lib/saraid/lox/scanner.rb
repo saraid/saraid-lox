@@ -111,6 +111,7 @@ module Saraid
 
       private def number
         advance while is_digit?(peek)
+        fractional = false
 
         # Look for a fractional part.
         if peek == '.' && is_digit?(peek_next)
@@ -118,9 +119,10 @@ module Saraid
           advance
 
           advance while is_digit?(peek)
+          fractional = true
         end
 
-        add_token(:number, source[start..current].to_f)
+        add_token(:number, source[start...current].to_f)
       end
 
       private def peek_next

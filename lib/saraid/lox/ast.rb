@@ -19,6 +19,7 @@ module Saraid
       If: %i( condition thenBranch elseBranch ),
       While: %i( condition body ),
       Function: %i( name params body ),
+      Return: %i( keyword value ),
     }
   end
 end

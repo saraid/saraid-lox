@@ -218,9 +218,17 @@ module Saraid
         return forStatement if match(:for)
         return ifStatement if match(:if)
         return printStatement if match(:print)
+        return returnStatement if match(:return)
         return whileStatement if match(:while)
         return Stmt::Block.new(block) if match(:left_brace)
         expressionStatement
+      end
+
+      private def returnStatement
+        keyword = previous
+        value = expression unless check(:semicolon)
+        consume(:semicolon, "Expect ';' after return value.")
+        Stmt::Return.new(keyword, value)
       end
 
       private def forStatement
