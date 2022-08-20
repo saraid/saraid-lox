@@ -255,7 +255,7 @@ module Saraid
           stmt.superclass
             &.then { evaluate _1 }
             &.tap do
-              unless LoxClass === _1 
+              unless LoxClass === _1
                 raise RuntimeError.new(stmt.superclass.name, "Superclass must be a class.");
               end
             end
