@@ -119,11 +119,12 @@ module Saraid
 
       private def finishCall(callee)
         arguments = []
-        loop do
-          break if match(:right_paren)
-          arguments << expression
-          error(peek, "Can't have more than 255 arguments.") if arguments.size >= 255
-          break unless match(:comma)
+        unless check(:right_paren)
+          loop do
+            error(peek, "Can't have more than 255 arguments.") if arguments.size >= 255
+            arguments << expression
+            break unless match(:comma)
+          end
         end
 
         paren = consume(:right_paren, "Expect ')' after arguments.")
