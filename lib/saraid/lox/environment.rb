@@ -31,6 +31,7 @@ module Saraid
           return
         end
         return @enclosing.assign(name, value) if @enclosing
+        puts caller
         raise RuntimeError.new(name, "Undefined variable '#{name.lexeme}'.")
       end
 

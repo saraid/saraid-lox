@@ -147,6 +147,13 @@ module Saraid
 
         return Expr::Literal.new(previous.literal) if match(:number, :string)
 
+        if match(:super)
+          keyword = previous
+          consume(:dot, "Expect '.' after 'super'.");
+          meth = consume(:identifier, "Expect superclass method name.");
+          return Expr::Super.new(keyword, meth)
+        end
+
         return Expr::This.new(previous) if match(:this)
         return Expr::Variable.new(previous) if match(:identifier)
 

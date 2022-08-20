@@ -180,6 +180,9 @@ module Saraid
             Lox.error(stmt.superclass.name, "A class can't inherit from itself.");
           end
           resolve(stmt.superclass) 
+
+          beginScope
+          @scopes.last['super'] = true
         end
 
         beginScope
@@ -189,6 +192,8 @@ module Saraid
           resolveFunction(_1, declaration)
         end
         endScope
+
+        endScope if stmt.superclass
 
         @current_class = enclosing_class
         nil
@@ -210,6 +215,11 @@ module Saraid
           Lox.error(expr.keyword, "Can't use 'this' outside of a class.")
           return
         end
+        resolveLocal(expr, expr.keyword)
+        nil
+      end
+
+      def visitSuperExpr(expr)
         resolveLocal(expr, expr.keyword)
         nil
       end

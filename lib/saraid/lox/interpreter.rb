@@ -261,10 +261,18 @@ module Saraid
             end
 
         @environment.define(stmt.name.lexeme, nil)
+
+        if superclass
+          @environment = Environment.new(@environment)
+          @environment.define('super', superclass)
+        end
+
         methods = stmt.methods.each.with_object({}) do |meth, collection|
           collection[meth.name.lexeme] = LoxFunction.new(meth, @environment, meth.name.lexeme == 'init')
         end
-        @environment.assign(stmt.name, LoxClass.new(stmt.name.lexeme, superclass, methods))
+        klass = LoxClass.new(stmt.name.lexeme, superclass, methods)
+        @environment = @environment.enclosing if superclass
+        @environment.assign(stmt.name, klass)
         nil
       end
 
@@ -284,8 +292,19 @@ module Saraid
       end
 
       def visitThisExpr(expr)
-        #require 'byebug'; byebug
         lookUpVariable(expr.keyword, expr)
+      end
+
+      def visitSuperExpr(expr)
+        distance = @locals[expr]
+        superclass = @environment.getAt(distance, 'super')
+        object = @environment.getAt(distance, 'this')
+
+        superclass.findMethod(expr.method.lexeme)
+          .tap do
+            raise RuntimeError.new(expr.method, "Undefined property '#{expr.method.lexeme}'.") if _1.nil?
+          end
+          .bind(object)
       end
     end
   end

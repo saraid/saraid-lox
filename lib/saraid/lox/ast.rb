@@ -14,6 +14,7 @@ module Saraid
       Get: %i( object name ),
       Set: %i( object name value ),
       This: %i( keyword ),
+      Super: %i( keyword method ),
     }
 
     generate_ast :Stmt, {
