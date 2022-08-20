@@ -4,18 +4,18 @@ module Saraid
     end
 
     class Function < Callable
-      def initialize(declaration)
+      def initialize(declaration, closure)
         @declaration = declaration
-        declaration.body.each { puts _1.inspect }
+        @closure = closure
       end
-      attr_reader :declaration
+      attr_reader :declaration, :closure
 
       def arity
         declaration.params.size
       end
 
       def call(interpreter, arguments)
-        environment = Environment.new(interpreter.globals)
+        environment = Environment.new(closure)
         declaration.params.each.with_index do |param, i|
           environment.define(param.lexeme, arguments[i])
         end

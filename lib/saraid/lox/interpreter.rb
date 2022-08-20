@@ -223,7 +223,7 @@ module Saraid
       end
 
       def visitFunctionStmt(stmt)
-        @environment.define(stmt.name.lexeme, Function.new(stmt))
+        @environment.define(stmt.name.lexeme, Function.new(stmt, @environment))
         nil
       end
 
