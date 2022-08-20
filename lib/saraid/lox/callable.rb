@@ -14,6 +14,12 @@ module Saraid
         declaration.params.size
       end
 
+      def bind(instance)
+        environment = Environment.new(closure)
+        environment.define('this', instance)
+        LoxFunction.new(declaration, environment)
+      end
+
       def call(interpreter, arguments)
         environment = Environment.new(closure)
         declaration.params.each.with_index do |param, i|

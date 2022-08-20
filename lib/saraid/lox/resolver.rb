@@ -63,8 +63,19 @@ module Saraid
       end
 
       private def resolveLocal(expr, name)
-        index = @scopes.reverse.find_index { _1.key?(name.lexeme) }
-        interpreter.resolve(expr, scopes.size - 1 - index) if index
+        #require 'byebug'; byebug if name.lexeme == 'this'
+        #index = @scopes.reverse.find_index { _1.key?(name.lexeme) }
+        #interpreter.resolve(expr, scopes.size - 1 - index) if index
+
+        # TODO: ARGGGGGGH
+        i = @scopes.size - 1
+        while i >= 0
+          if @scopes[i].key?(name.lexeme)
+            interpreter.resolve(expr, @scopes.size - 1 - i)
+            return
+          end
+          i -= 1
+        end
       end
 
       def visitAssignExpr(expr)
@@ -155,8 +166,12 @@ module Saraid
 
       def visitClassStmt(stmt)
         declare(stmt.name)
-        stmt.methods.each { resolveFunction(_1, :method) }
         define(stmt.name)
+
+        beginScope
+        @scopes.last['this'] = true
+        stmt.methods.each { resolveFunction(_1, :method) }
+        endScope
         nil
       end
 
@@ -168,6 +183,11 @@ module Saraid
       def visitSetExpr(expr)
         resolve(expr.value)
         resolve(expr.object)
+        nil
+      end
+
+      def visitThisExpr(expr)
+        resolveLocal(expr, expr.keyword)
         nil
       end
     end

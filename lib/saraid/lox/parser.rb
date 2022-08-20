@@ -147,6 +147,7 @@ module Saraid
 
         return Expr::Literal.new(previous.literal) if match(:number, :string)
 
+        return Expr::This.new(previous) if match(:this)
         return Expr::Variable.new(previous) if match(:identifier)
 
         if match(:left_paren)

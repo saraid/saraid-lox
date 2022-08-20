@@ -13,6 +13,7 @@ module Saraid
       Call: %i( callee paren arguments ),
       Get: %i( object name ),
       Set: %i( object name value ),
+      This: %i( keyword ),
     }
 
     generate_ast :Stmt, {

@@ -5,7 +5,7 @@ module Saraid
         @enclosing = enclosing
         @values = {}
       end
-      attr_reader :values
+      attr_reader :values, :enclosing
 
       def define(name, value)
         @values[name] = value

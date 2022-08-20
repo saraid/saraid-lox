@@ -273,6 +273,11 @@ module Saraid
         object.set(expr.name, value)
         value
       end
+
+      def visitThisExpr(expr)
+        #require 'byebug'; byebug
+        lookUpVariable(expr.keyword, expr)
+      end
     end
   end
 end

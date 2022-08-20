@@ -11,7 +11,7 @@ module Saraid
         return fields[name.lexeme] if fields.key?(name.lexeme)
 
         klass_method = klass.findMethod(name.lexeme)
-        return klass_method if klass_method
+        return klass_method.bind(self) if klass_method
 
         raise RuntimeError.new(name, "Undefined property '#{name.lexeme}'.")
       end
