@@ -6,5 +6,10 @@ module Saraid
       Literal: %i( value ),
       Unary: %i( operator right ),
     }
+
+    generate_ast :Stmt, {
+      Expression: %i( expression ),
+      Print: %i( expression ),
+    }
   end
 end

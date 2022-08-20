@@ -92,10 +92,16 @@ module Saraid
         raise RuntimeError.new(operator, 'Operands must be numbers.') unless valid
       end
 
-      def interpret(expr)
+      def interpret(expr_or_stmts)
         begin
-          value = evaluate expr
-          puts stringify(value)
+          case expr_or_stmts
+          when Array
+            stmts = expr_or_stmts
+            stmts.each { execute(_1) }
+          else
+            value = evaluate expr_or_stmts
+            puts stringify(value)
+          end
         rescue RuntimeError => e
           Lox.runtime_error(e)
         end
@@ -107,6 +113,20 @@ module Saraid
         when Float then object.to_s.tap { _1.sub!(/\.0$/, '') }
         else object.to_s
         end
+      end
+
+      def visitExpressionStmt(stmt)
+        evaluate(stmt.expression)
+        nil
+      end
+
+      def visitPrintStmt(stmt)
+        puts stringify evaluate stmt.expression
+        nil
+      end
+
+      private def execute(stmt)
+        stmt.accept(self)
       end
     end
   end

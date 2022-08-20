@@ -69,7 +69,7 @@ module Saraid
       end
 
       private def add_token(type, literal = nil)
-        text = source[start..current]
+        text = source[start...current]
         tokens << Token.new(type, text, literal, line)
       end
 
@@ -101,7 +101,7 @@ module Saraid
         advance
 
         # Trim the surrounding quotes.
-        value = source[(start + 1)..(current - 1)]
+        value = source[(start + 1)...(current - 1)]
         add_token(:string, value);
       end
 
@@ -131,8 +131,8 @@ module Saraid
       private def identifier
         advance while is_alphanumeric?(peek)
 
-        text = source[start..current]
-        type = KEYWORDS.find { text == _1 } || :identifier
+        text = source[start...current]
+        type = KEYWORDS.find { text == _1 }&.to_sym || :identifier
 
         add_token type
       end

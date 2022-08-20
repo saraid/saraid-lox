@@ -45,12 +45,12 @@ module Saraid
       scanner = Scanner.new(source)
       tokens = scanner.scan_tokens
       parser = Parser.new(tokens)
-      expression = parser.parse
+      stmts = parser.parse
 
       return if had_error?
 
       @interpreter ||= Interpreter.new
-      @interpreter.interpret(expression)
+      @interpreter.interpret(stmts)
     end
 
     def self.error(token_or_line, message)

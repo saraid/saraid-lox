@@ -120,11 +120,26 @@ module Saraid
       end
 
       def parse
-        begin
-          expression
-        rescue Error
-          nil
-        end
+        statements = []
+        statements << statement until is_at_end?
+        statements
+      end
+
+      private def statement
+        return printStatement if match(:print)
+        expressionStatement
+      end
+
+      private def printStatement
+        value = expression
+        consume(:semicolon, "Expect ';' after value.");
+        Stmt::Print.new(value)
+      end
+
+      private def expressionStatement
+        expr = expression
+        consume(:semicolon, "Expect ';' after expression.");
+        Stmt::Expression.new(expr)
       end
     end
   end
