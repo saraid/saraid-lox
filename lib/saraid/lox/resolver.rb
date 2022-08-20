@@ -155,6 +155,7 @@ module Saraid
 
       def visitClassStmt(stmt)
         declare(stmt.name)
+        stmt.methods.each { resolveFunction(_1, :method) }
         define(stmt.name)
         nil
       end

@@ -33,10 +33,11 @@ module Saraid
     end
 
     class LoxClass < LoxCallable
-      def initialize(name)
+      def initialize(name, methods)
         @name = name
+        @methods = methods
       end
-      attr_reader :name
+      attr_reader :name, :methods
 
       def arity
         0
@@ -44,6 +45,11 @@ module Saraid
 
       def call(interpreter, arguments)
         LoxInstance.new(self)
+      end
+
+      def findMethod(name)
+        return @methods[name] if @methods.key?(name)
+        nil
       end
 
       def to_s

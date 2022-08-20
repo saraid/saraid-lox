@@ -120,6 +120,7 @@ module Saraid
           elsif match(:dot)
             name = consume(:identifier, "Expect property name after '.'.")
             expr = Expr::Get.new(expr, name)
+          else break
           end
         end
         expr

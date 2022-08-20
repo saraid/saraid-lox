@@ -252,7 +252,10 @@ module Saraid
 
       def visitClassStmt(stmt)
         @environment.define(stmt.name.lexeme, nil)
-        @environment.assign(stmt.name, LoxClass.new(stmt.name.lexeme))
+        methods = stmt.methods.each.with_object({}) do |meth, collection|
+          collection[meth.name.lexeme] = LoxFunction.new(meth, @environment)
+        end
+        @environment.assign(stmt.name, LoxClass.new(stmt.name.lexeme, methods))
         nil
       end
 
