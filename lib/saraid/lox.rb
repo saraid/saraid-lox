@@ -1,11 +1,5 @@
 require "saraid/lox/version"
 
-require_relative 'lox/token_type'
-require_relative 'lox/token'
-require_relative 'lox/scanner'
-require_relative 'lox/ast_printer'
-require_relative 'lox/parser'
-
 module Saraid
   module Lox
     class Error < StandardError; end
@@ -26,9 +20,14 @@ module Saraid
       @had_error
     end
 
+    def self.had_runtime_error?
+      @had_runtime_error
+    end
+
     def self.run_file(path)
       run File.read(path)
       exit 65 if had_error?
+      exit 70 if had_runtime_error?
     end
 
     def self.run_prompt
@@ -50,7 +49,8 @@ module Saraid
 
       return if had_error?
 
-      puts AstPrinter.new.print(expression)
+      @interpreter ||= Interpreter.new
+      @interpreter.interpret(expression)
     end
 
     def self.error(token_or_line, message)
@@ -69,6 +69,11 @@ module Saraid
     def self.report(line, where, message)
       $stderr.puts "[line #{line}] Error#{where}: #{message}"
       @had_error = true
+    end
+
+    def self.runtime_error(error)
+      $stderr.puts "#{error.message}\n[line #{error.token.line}]"
+      @had_runtime_error = true
     end
 
     def self.generate_ast(superclass_name, definitions)
@@ -91,3 +96,10 @@ module Saraid
   end
 end
 require_relative 'lox/expr'
+
+require_relative 'lox/token_type'
+require_relative 'lox/token'
+require_relative 'lox/scanner'
+require_relative 'lox/ast_printer'
+require_relative 'lox/parser'
+require_relative 'lox/interpreter'

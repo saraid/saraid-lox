@@ -1,7 +1,7 @@
 module Saraid
   module Lox
     class Parser
-      class Error < StandardError; end
+      class Error < Lox::Error; end
 
       def initialize(tokens)
         @tokens = tokens
@@ -121,7 +121,6 @@ module Saraid
 
       def parse
         begin
-          require 'byebug'; byebug
           expression
         rescue Error
           nil
