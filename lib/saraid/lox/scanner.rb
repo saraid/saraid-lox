@@ -22,7 +22,7 @@ module Saraid
       end
 
       private def is_at_end?
-        current >= source.size - 1
+        current >= source.size - 1 # TODO: Why did I have to subtract 1?
       end
 
       private def scan_token
