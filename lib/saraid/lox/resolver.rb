@@ -179,6 +179,7 @@ module Saraid
           if stmt.name.lexeme == stmt.superclass.name.lexeme
             Lox.error(stmt.superclass.name, "A class can't inherit from itself.");
           end
+          @current_class = :subclass
           resolve(stmt.superclass) 
 
           beginScope
@@ -220,6 +221,13 @@ module Saraid
       end
 
       def visitSuperExpr(expr)
+        case @current_class
+        when NilClass then Lox.error(expr.keyword, "Can't use 'super' outside of a class.")
+        else
+          unless @current_class == :subclass
+            Lox.error(expr.keyword, "Can't use 'super' in a class with no superclass.")
+          end
+        end
         resolveLocal(expr, expr.keyword)
         nil
       end
