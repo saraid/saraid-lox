@@ -157,6 +157,15 @@ module Saraid
           @environment = previous
         end
       end
+
+      def visitIfStmt(stmt)
+        if is_truthy?(evaluate(stmt.condition))
+          execute(stmt.thenBranch)
+        elsif stmt.elseBranch
+          execute(stmt.elseBranch)
+        end
+        nil
+      end
     end
   end
 end

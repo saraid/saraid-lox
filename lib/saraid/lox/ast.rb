@@ -14,6 +14,7 @@ module Saraid
       Print: %i( expression ),
       Var: %i( name initializer ),
       Block: %i( statements ),
+      If: %i( condition thenBranch elseBranch ),
     }
   end
 end

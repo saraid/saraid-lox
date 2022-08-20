@@ -165,9 +165,21 @@ module Saraid
       end
 
       private def statement
+        return ifStatement if match(:if)
         return printStatement if match(:print)
         return Stmt::Block.new(block) if match(:left_brace)
         expressionStatement
+      end
+
+      private def ifStatement
+        consume(:left_paren, "Expect '(' after 'if'.")
+        condition = expression;
+        consume(:right_paren, "Expect ')' after if condition.")
+
+        thenBranch = statement
+        elseBranch = statement if match(:else)
+
+        Stmt::If.new(condition, thenBranch, elseBranch)
       end
 
       private def block
